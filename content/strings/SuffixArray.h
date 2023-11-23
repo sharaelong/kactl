@@ -1,42 +1,50 @@
 /**
- * Author: 罗穗骞, chilli
- * Date: 2019-04-11
- * License: Unknown
- * Source: Suffix array - a powerful tool for dealing with strings
- * (Chinese IOI National team training paper, 2009)
- * Description: Builds suffix array for a string.
- * \texttt{sa[i]} is the starting index of the suffix which
- * is $i$'th in the sorted suffix array.
- * The returned vector is of size $n+1$, and \texttt{sa[0] = n}.
- * The \texttt{lcp} array contains longest common prefixes for
- * neighbouring strings in the suffix array:
- * \texttt{lcp[i] = lcp(sa[i], sa[i-1])}, \texttt{lcp[0] = 0}.
- * The input string must not contain any zero bytes.
- * Time: O(n \log n)
- * Status: stress-tested
+ * Author:
+ * Description:
+ * Usage: 0-base index. sa[i]: lexicographically (i+1)'th suffix (of d letters). lcp[i]: lcp between sa[i] and sa[i+1]. r[i]: rank of s[i..n-1] when only consider first d letters. nr: temp array for next rank. cnt[i]: number of positions which has i of next rank. rf[r]: lexicographically first position which suffixes (of d letters) has rank r. rdx[i]: lexicographically (i+1)'th suffix when only consider (d+1)'th ~ 2d'th letters.
+ * Time: O(n \log n), $N = 5 \times 10^5$ in 176ms.
  */
+
 #pragma once
 
-struct SuffixArray {
-	vi sa, lcp;
-	SuffixArray(string& s, int lim=256) { // or basic_string<int>
-		int n = sz(s) + 1, k = 0, a, b;
-		vi x(all(s)+1), y(n), ws(max(n, lim)), rank(n);
-		sa = lcp = y, iota(all(sa), 0);
-		for (int j = 0, p = 0; p < n; j = max(1, j * 2), lim = p) {
-			p = j, iota(all(y), n - j);
-			rep(i,0,n) if (sa[i] >= j) y[p++] = sa[i] - j;
-			fill(all(ws), 0);
-			rep(i,0,n) ws[x[i]]++;
-			rep(i,1,lim) ws[i] += ws[i - 1];
-			for (int i = n; i--;) sa[--ws[x[y[i]]]] = y[i];
-			swap(x, y), p = 1, x[sa[0]] = 0;
-			rep(i,1,n) a = sa[i - 1], b = sa[i], x[b] =
-				(y[a] == y[b] && y[a + j] == y[b + j]) ? p - 1 : p++;
-		}
-		rep(i,1,n) rank[sa[i]] = i;
-		for (int i = 0, j; i < n - 1; lcp[rank[i++]] = k)
-			for (k && k--, j = sa[rank[i] - 1];
-					s[i + k] == s[j + k]; k++);
-	}
-};
+void suffix_array(string S, vector<int> &sa, vector<int> &lcp) {
+    int n = S.size();
+    vector<int> r(n), nr(n), rf(n), rdx(n);
+    sa.resize(n); lcp.resize(n);
+
+    for (int i = 0; i < n; i++) sa[i] = i;
+    sort(sa.begin(), sa.end(), [&](int a, int b) { return S[a] < S[b]; });
+    for (int i = 1; i < n; i++) r[sa[i]] = r[sa[i - 1]] + (S[sa[i - 1]] != S[sa[i]]);
+
+    for (int d = 1; d < n; d <<= 1) {
+        for (int i = n - 1; i >= 0; i--) {
+            rf[r[sa[i]]] = i;
+        }
+        int j = 0;
+        for (int i = n - d; i < n; i++) rdx[j++] = i;
+        for (int i = 0; i < n; i++) {
+            if (sa[i] >= d) rdx[j++] = sa[i] - d;
+        }
+        for (int i = 0; i < n; i++) {
+            sa[rf[r[rdx[i]]]++] = rdx[i];
+        }
+        nr[sa[0]] = 0;
+        for (int i = 1; i < n; i++) {
+            if (r[sa[i]] != r[sa[i - 1]]) {
+                nr[sa[i]] = nr[sa[i - 1]] + 1;
+            }
+            else {
+                int prv = (sa[i - 1] + d >= n ? -1 : r[sa[i - 1] + d]);
+                int cur = (sa[i] + d >= n ? -1 : r[sa[i] + d]);
+                nr[sa[i]] = nr[sa[i - 1]] + (prv != cur);
+            }
+        }
+        swap(r, nr);
+        if (r[sa[n-1]] == n-1) break;
+    }
+    for (int i = 0, len = 0; i < n; ++i, len = max(len - 1, 0)) {
+        if (r[i] == n - 1) continue;
+        for (int j = sa[r[i] + 1]; S[i + len] == S[j + len]; ++len);
+        lcp[r[i]] = len;
+    }
+}

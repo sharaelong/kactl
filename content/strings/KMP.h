@@ -1,27 +1,48 @@
 /**
- * Author: Johan Sannemo
- * Date: 2016-12-15
- * License: CC0
- * Description: pi[x] computes the length of the longest prefix of s that ends at x, other than s[0...x] itself (abacaba -> 0010123).
- * Can be used to find all occurrences of a string.
+ * Author:
+ * Description:
+ * Usage: 0-base. pmt[i] = s[0..i]'s common longest prefix and suffix. kmp[i] = ith matched begin position.
  * Time: O(n)
- * Status: Tested on kattis:stringmatching
  */
 #pragma once
 
-vi pi(const string& s) {
-	vi p(sz(s));
-	rep(i,1,sz(s)) {
-		int g = p[i-1];
-		while (g && s[i] != s[g]) g = p[g-1];
-		p[i] = g + (s[i] == s[g]);
-	}
-	return p;
+vector<int> get_pmt(const string& s) {
+    int n = s.size();
+    vector<int> pmt(n, 0);
+    // except finding itself by searching from s[0]
+    int b = 1, m = 0;
+    // s[b + m]: letter to compare
+    while (b + m < n) {
+        if (s[b+m] == s[m]) {
+            pmt[b+m] = m + 1;
+            m++;
+        } else {
+            if (m > 0) {
+                b += m - pmt[m-1];
+                m = pmt[m-1];
+            } else {
+                b++;
+            }
+        }
+    }
+    return pmt;
 }
-
-vi match(const string& s, const string& pat) {
-	vi p = pi(pat + '\0' + s), res;
-	rep(i,sz(p)-sz(s),sz(p))
-		if (p[i] == sz(pat)) res.push_back(i - 2 * sz(pat));
-	return res;
+vector<int> KMP(const string& hay, const string& needle) {
+    vector<int> pmt = get_pmt(needle);
+    vector<int> ret;
+    int b = 0, m = 0;
+    while (b <= (int)hay.size() - needle.size()) {
+        if (m < needle.size() && hay[b+m] == needle[m]) {
+            m++;
+            if (m == needle.size()) ret.push_back(b);
+        } else {
+            if (m > 0) {
+                b += m - pmt[m-1];
+                m = pmt[m-1];
+            } else {
+                b++;
+            }
+        }
+    }
+    return ret;
 }

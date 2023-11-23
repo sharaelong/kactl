@@ -1,54 +1,23 @@
 /**
- * Author: Simon Lindholm
- * Date: 2015-03-15
- * License: CC0
- * Source: own work
- * Description: Self-explanatory methods for string hashing.
- * Status: stress-tested
+ * Author:
+ * Description:
+ * Usage: Hashing<base, mod> hsh; hsh.Build(s); query is 1-base (but s is not modified).
  */
 #pragma once
 
-// Arithmetic mod 2^64-1. 2x slower than mod 2^64 and more
-// code, but works on evil test data (e.g. Thue-Morse, where
-// ABBA... and BAAB... of length 2^10 hash the same mod 2^64).
-// "typedef ull H;" instead if you think test data is random,
-// or work mod 10^9+7 if the Birthday paradox is not a problem.
-typedef uint64_t ull;
-struct H {
-	ull x; H(ull x=0) : x(x) {}
-	H operator+(H o) { return x + o.x + (x + o.x < x); }
-	H operator-(H o) { return *this + ~o.x; }
-	H operator*(H o) { auto m = (__uint128_t)x * o.x;
-		return H((ull)m) + (ull)(m >> 64); }
-	ull get() const { return x + !~x; }
-	bool operator==(H o) const { return get() == o.get(); }
-	bool operator<(H o) const { return get() < o.get(); }
+// 1e5+3, 1e5+13, 131'071, 524'287, 1'299'709, 1'301'021
+// 1e9-63, 1e9+7, 1e9+9, 1e9+103
+template<ll P, ll M> struct Hashing {
+    vector<ll> H, B;
+    void Build(const string &S){
+        H.resize(S.size()+1);
+        B.resize(S.size()+1);
+        B[0] = 1;
+        for(int i=1; i<=S.size(); i++) H[i] = (H[i-1] * P + S[i-1]) % M;
+        for(int i=1; i<=S.size(); i++) B[i] = B[i-1] * P % M;
+    }
+    ll sub(int s, int e){
+        ll res = (H[e] - H[s-1] * B[e-s+1]) % M;
+        return res < 0 ? res + M : res;
+    }
 };
-static const H C = (ll)1e11+3; // (order ~ 3e9; random also ok)
-
-struct HashInterval {
-	vector<H> ha, pw;
-	HashInterval(string& str) : ha(sz(str)+1), pw(ha) {
-		pw[0] = 1;
-		rep(i,0,sz(str))
-			ha[i+1] = ha[i] * C + str[i],
-			pw[i+1] = pw[i] * C;
-	}
-	H hashInterval(int a, int b) { // hash [a, b)
-		return ha[b] - ha[a] * pw[b - a];
-	}
-};
-
-vector<H> getHashes(string& str, int length) {
-	if (sz(str) < length) return {};
-	H h = 0, pw = 1;
-	rep(i,0,length)
-		h = h * C + str[i], pw = pw * C;
-	vector<H> ret = {h};
-	rep(i,length,sz(str)) {
-		ret.push_back(h = h * C + str[i] - pw * str[i-length]);
-	}
-	return ret;
-}
-
-H hashString(string& s){H h{}; for(char c:s) h=h*C+c;return h;}

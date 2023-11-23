@@ -1,21 +1,17 @@
 /**
- * Author: chilli
- * License: CC0
- * Description: z[x] computes the length of the longest common prefix of s[i:] and s, except z[0] = 0. (abacaba -> 0010301)
- * Time: O(n)
- * Status: stress-tested
+ * Author:
+ * Description:
+ * Usage: Z[i] stores lcp of s[0..] and s[i..]
+ * Time: O(n), $N = 10^5$ in 20ms.
  */
 #pragma once
 
-vi Z(const string& S) {
-	vi z(sz(S));
-	int l = -1, r = -1;
-	rep(i,1,sz(S)) {
-		z[i] = i >= r ? 0 : min(r - i, z[i - l]);
-		while (i + z[i] < sz(S) && S[i + z[i]] == S[z[i]])
-			z[i]++;
-		if (i + z[i] > r)
-			l = i, r = i + z[i];
-	}
-	return z;
+vector<int> Z(string &s) {
+    vector<int> ret(s.size(), 0); ret[0] = s.size();
+    for(int i = 1, l = 0, r = 1; i < s.size(); i++) {
+        ret[i] = max(0, min(ret[i-l], r-i));
+        while(ret[i]+i < s.size() && s[i+ret[i]] == s[ret[i]]) ret[i]++;
+        if(i+ret[i] > r) r = i+ret[i], l = i;
+    }
+    return ret;
 }

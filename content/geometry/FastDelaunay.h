@@ -1,20 +1,15 @@
 /**
- * Author: Philippe Legault
- * Date: 2016
- * License: MIT
- * Source: https://github.com/Bathlamos/delaunay-triangulation/
+ * Author:
  * Description: Fast Delaunay triangulation.
  * Each circumcircle contains none of the input points.
  * There must be no duplicate points.
  * If all points are on a line, no triangles will be returned.
  * Should work for doubles as well, though there may be precision issues in 'circ'.
  * Returns triangles in order \{t[0][0], t[0][1], t[0][2], t[1][0], \dots\}, all counter-clockwise.
- * Time: O(n \log n)
- * Status: stress-tested
+ * Usage: vector<P> tris = triangulate(pts);
+ * Time: O(n \log n), $\sum n \log n = 1.3 \times 10^7$ in 2500ms.
  */
 #pragma once
-
-#include "Point.h"
 
 typedef Point<ll> P;
 typedef struct Quad* Q;
