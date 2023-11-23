@@ -1,28 +1,24 @@
 /**
- * Author: Ulf Lundstrom
- * Date: 2009-03-21
- * License: CC0
- * Source:
- * Description:\\
-\begin{minipage}{75mm}
-Returns the shortest distance between point p and the line segment from point s to e.
-\end{minipage}
-\begin{minipage}{15mm}
-\vspace{-10mm}
-\includegraphics[width=\textwidth]{content/geometry/SegmentDistance}
-\end{minipage}
- * Usage: 
- * 	Point<double> a, b(2,2), p(1,1);
- * 	bool onSegment = segDist(a,b,p) < 1e-10;
- * Status: tested
+ * Author:
+ * Description:
  */
 #pragma once
 
-#include "Point.h"
+ld proj_height(Point a, Point b, Point x) {
+    ld t1 = (b-a) * (x-a), t2 = (a-b) * (x-b);
+    if (sgn(t1*t2) >= 0) return abs((b-a)^(x-a)) / (b-a).norm();
+    else return 1e18;
+}
 
-typedef Point<double> P;
-double segDist(P& s, P& e, P& p) {
-	if (s==e) return (p-s).dist();
-	auto d = (e-s).dist2(), t = min(d,max(.0,(p-s).dot(e-s)));
-	return ((p-s)*d-(e-s)*t).dist()/d;
+ld segment_dist(Point s1, Point e1, Point s2, Point e2) {
+    ld ans = 1e18;
+    ans = min(ans, (s2-s1).norm());
+    ans = min(ans, (e2-s1).norm());
+    ans = min(ans, (s2-e1).norm());
+    ans = min(ans, (e2-e1).norm());
+    ans = min(ans, proj_height(s1, e1, s2));
+    ans = min(ans, proj_height(s1, e1, e2));
+    ans = min(ans, proj_height(s2, e2, s1));
+    ans = min(ans, proj_height(s2, e2, e1));
+    return ans;
 }
