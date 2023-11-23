@@ -1,20 +1,23 @@
 /**
- * Author: Stjepan Glavina
- * License: Unlicense
- * Source: https://github.com/stjepang/snippets/blob/master/min_rotation.cpp
+ * Author:
  * Description: Finds the lexicographically smallest rotation of a string.
- * Time: O(N)
- * Usage:
- *  rotate(v.begin(), v.begin()+minRotation(v), v.end());
- * Status: Stress-tested
+ * Time: O(N), no data.
  */
 #pragma once
 
-int minRotation(string s) {
-	int a=0, N=sz(s); s += s;
-	rep(b,0,N) rep(k,0,N) {
-		if (a+k == b || s[a+k] < s[b+k]) {b += max(0, k-1); break;}
-		if (s[a+k] > s[b+k]) { a = b; break; }
-	}
-	return a;
+string min_cyclic_string(string s) {
+    int n = s.size();
+    s += s;
+    int i = 0, ans = 0;
+    while(i < n) {
+        ans = i;
+        int j = i+1, k = i;
+        while(j < 2*n && s[k] <= s[j]) {
+            if(s[k] < s[j]) k = i;
+            else k++;
+            j++;
+        }
+        while(i <= k) i += j-k;
+    }
+    return s.substr(ans, n);
 }

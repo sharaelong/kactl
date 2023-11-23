@@ -1,6 +1,6 @@
 /**
  * Author:
- * Description: ?? Bulldozer trick.
+ * Description: Bulldozer trick. At first points need to be sorted. If collinear point exists, comparison operator must consider original index of point.
  * Usage: vector<Line> V;
  * Time: O(n^2 \log n), no data but relatively fast.
  */
