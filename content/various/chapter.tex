@@ -58,3 +58,29 @@ Suurballe's algorithm: finding two disjoint paths in a nonnegatively-weighted di
 3. Create a residual graph $G_t$ formed from $G$ by removing the edges of $G$ on path $P_1$ that are directed into s and then reverse the direction of the zero length edges along path $P_1$.
 4. Find the shortest path $P_2$ in the residual graph $G_t$ by running Dijkstra's algorithm.
 5. Discard the reversed edges of $P_2$ from both paths. The remaining edges of $P_1$ and $P_2$ form a subgraph with two outgoing edges at s, two incoming edges at t, and one incoming and one outgoing edge at each remaining vertex. Therefore, this subgraph consists of two edge-disjoint paths from s to t and possibly some additional (zero-length) cycles. Return the two disjoint paths from the subgraph.
+
+\section{Dominator Tree}
+\begin{minipage}{90mm}
+\includegraphics[width=\textwidth]{content/various/d1}
+\end{minipage}
+\begin{minipage}{90mm}
+\includegraphics[width=\textwidth]{content/various/d2}
+\end{minipage}
+
+\section{Continue}
+\begin{minipage}{90mm}
+\includegraphics[width=\textwidth]{content/various/d3}
+\end{minipage}
+\begin{minipage}{90mm}
+\includegraphics[width=\textwidth]{content/various/d4}
+\end{minipage}
+
+\section{Tourist}
+\begin{minipage}{90mm}
+\includegraphics[width=\textwidth]{content/various/tourist}
+\end{minipage}
+
+\section{Tourist}
+\begin{minipage}{90mm}
+\includegraphics[width=\textwidth]{content/various/tourist}
+\end{minipage}
