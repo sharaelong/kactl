@@ -8,43 +8,43 @@
 #pragma once
 
 void suffix_array(string S, vector<int> &sa, vector<int> &lcp) {
-    int n = S.size();
-    vector<int> r(n), nr(n), rf(n), rdx(n);
-    sa.resize(n); lcp.resize(n);
+  int n = S.size();
+  vector<int> r(n), nr(n), rf(n), rdx(n);
+  sa.resize(n); lcp.resize(n);
 
-    for (int i = 0; i < n; i++) sa[i] = i;
-    sort(sa.begin(), sa.end(), [&](int a, int b) { return S[a] < S[b]; });
-    for (int i = 1; i < n; i++) r[sa[i]] = r[sa[i - 1]] + (S[sa[i - 1]] != S[sa[i]]);
+  for (int i = 0; i < n; i++) sa[i] = i;
+  sort(sa.begin(), sa.end(), [&](int a, int b) { return S[a] < S[b]; });
+  for (int i = 1; i < n; i++) r[sa[i]] = r[sa[i - 1]] + (S[sa[i - 1]] != S[sa[i]]);
 
-    for (int d = 1; d < n; d <<= 1) {
-        for (int i = n - 1; i >= 0; i--) {
-            rf[r[sa[i]]] = i;
-        }
-        int j = 0;
-        for (int i = n - d; i < n; i++) rdx[j++] = i;
-        for (int i = 0; i < n; i++) {
-            if (sa[i] >= d) rdx[j++] = sa[i] - d;
-        }
-        for (int i = 0; i < n; i++) {
-            sa[rf[r[rdx[i]]]++] = rdx[i];
-        }
-        nr[sa[0]] = 0;
-        for (int i = 1; i < n; i++) {
-            if (r[sa[i]] != r[sa[i - 1]]) {
-                nr[sa[i]] = nr[sa[i - 1]] + 1;
-            }
-            else {
-                int prv = (sa[i - 1] + d >= n ? -1 : r[sa[i - 1] + d]);
-                int cur = (sa[i] + d >= n ? -1 : r[sa[i] + d]);
-                nr[sa[i]] = nr[sa[i - 1]] + (prv != cur);
-            }
-        }
-        swap(r, nr);
-        if (r[sa[n-1]] == n-1) break;
+  for (int d = 1; d < n; d <<= 1) {
+    for (int i = n - 1; i >= 0; i--) {
+      rf[r[sa[i]]] = i;
     }
-    for (int i = 0, len = 0; i < n; ++i, len = max(len - 1, 0)) {
-        if (r[i] == n - 1) continue;
-        for (int j = sa[r[i] + 1]; S[i + len] == S[j + len]; ++len);
-        lcp[r[i]] = len;
+    int j = 0;
+    for (int i = n - d; i < n; i++) rdx[j++] = i;
+    for (int i = 0; i < n; i++) {
+      if (sa[i] >= d) rdx[j++] = sa[i] - d;
     }
+    for (int i = 0; i < n; i++) {
+      sa[rf[r[rdx[i]]]++] = rdx[i];
+    }
+    nr[sa[0]] = 0;
+    for (int i = 1; i < n; i++) {
+      if (r[sa[i]] != r[sa[i - 1]]) {
+        nr[sa[i]] = nr[sa[i - 1]] + 1;
+      }
+      else {
+        int prv = (sa[i - 1] + d >= n ? -1 : r[sa[i - 1] + d]);
+        int cur = (sa[i] + d >= n ? -1 : r[sa[i] + d]);
+        nr[sa[i]] = nr[sa[i - 1]] + (prv != cur);
+      }
+    }
+    swap(r, nr);
+    if (r[sa[n-1]] == n-1) break;
+  }
+  for (int i = 0, len = 0; i < n; ++i, len = max(len - 1, 0)) {
+    if (r[i] == n - 1) continue;
+    for (int j = sa[r[i] + 1]; S[i + len] == S[j + len]; ++len);
+    lcp[r[i]] = len;
+  }
 }

@@ -11,119 +11,160 @@
  */
 #pragma once
 
-template<class T> int sgn(T x) { return (x > 0) - (x < 0); }
+#define rep(i, a, b) for(int i = a; i < (b); ++i)
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+typedef long long ll;
+typedef pair<int, int> pii;
 
+template <class T> int sgn(T x) { return (x > 0) - (x < 0); }
 template<class T>
 struct Point {
-    typedef Point P;
-    T x, y;
-    explicit Point(T x=0, T y=0) : x(x), y(y) {}
-    bool operator<(P p) const { return tie(x,y) < tie(p.x,p.y); }
-    bool operator==(P p) const { return tie(x,y)==tie(p.x,p.y); }
-    P operator+(P p) const { return P(x+p.x, y+p.y); }
-    P operator-(P p) const { return P(x-p.x, y-p.y); }
-    P operator*(T d) const { return P(x*d, y*d); }
-    P operator/(T d) const { return P(x/d, y/d); }
-    T dot(P p) const { return x*p.x + y*p.y; }
-    T cross(P p) const { return x*p.y - y*p.x; }
-    T cross(P a, P b) const { return (a-*this).cross(b-*this); }
-    T dist2() const { return x*x + y*y; }
-    double dist() const { return sqrt((double)dist2()); }
-    // angle to x-axis in interval [-pi, pi]
-    double angle() const { return atan2(y, x); }
-    P unit() const { return *this/dist(); } // makes dist()=1
-    P perp() const { return P(-y, x); } // rotates +90 degrees
-    P normal() const { return perp().unit(); }
-    // returns point rotated 'a' radians ccw around the origin
-    P rotate(double a) const {
-        return P(x*cos(a)-y*sin(a),x*sin(a)+y*cos(a)); }
+  typedef Point P;
+  T x, y;
+  explicit Point(T x=0, T y=0) : x(x), y(y) {}
+  bool operator<(P p) const { return tie(x,y) < tie(p.x,p.y); }
+  bool operator==(P p) const { return tie(x,y)==tie(p.x,p.y); }
+  P operator+(P p) const { return P(x+p.x, y+p.y); }
+  P operator-(P p) const { return P(x-p.x, y-p.y); }
+  P operator*(T d) const { return P(x*d, y*d); }
+  P operator/(T d) const { return P(x/d, y/d); }
+  T dot(P p) const { return x*p.x + y*p.y; }
+  T cross(P p) const { return x*p.y - y*p.x; }
+  T cross(P a, P b) const { return (a-*this).cross(b-*this); }
+  T dist2() const { return x*x + y*y; }
+  double dist() const { return sqrt((double)dist2()); }
+  // angle to x-axis in interval [-pi, pi]
+  double angle() const { return atan2(y, x); }
+  P unit() const { return *this/dist(); } // makes dist()=1
+  P perp() const { return P(-y, x); } // rotates +90 degrees
+  P normal() const { return perp().unit(); }
+  // returns point rotated 'a' radians ccw around the origin
+  P rotate(double a) const {
+    return P(x*cos(a)-y*sin(a),x*sin(a)+y*cos(a)); }
+  friend istream& operator>>(istream& is, P& p) {
+    return is >> p.x >> p.y; }
+  friend ostream& operator<<(ostream& os, P p) {
+    return os << "(" << p.x << "," << p.y << ")"; }
 };
 
+
 typedef Point<ll> P;
-typedef struct Quad* Q;
 typedef __int128_t lll; // (can be ll if coords are < 2e4)
 P arb(LLONG_MAX,LLONG_MAX); // not equal to any other point
 
 struct Quad {
-	Q rot, o; P p = arb; bool mark;
-	P& F() { return r()->p; }
-	Q& r() { return rot->rot; }
-	Q prev() { return rot->o->rot; }
-	Q next() { return r()->prev(); }
-} *H;
+  int rot, o; P p = arb; bool mark;
+  Quad(): rot(-1), o(-1), mark(false) {}
+};
+
+vector<Quad> qs;
+int H = -1;
+
+int& r(const Quad& q) { return qs[q.rot].rot; }
+P& F(const Quad& q) { return qs[r(q)].p; }
+int prev(const Quad& q) { return qs[qs[q.rot].o].rot; }
+int next(const Quad& q) { return prev(qs[r(q)]); }
 
 bool circ(P p, P a, P b, P c) { // is p in the circumcircle?
-	lll p2 = p.dist2(), A = a.dist2()-p2,
-	    B = b.dist2()-p2, C = c.dist2()-p2;
-	return p.cross(a,b)*C + p.cross(b,c)*A + p.cross(c,a)*B > 0;
+  lll p2 = p.dist2(), A = a.dist2()-p2,
+    B = b.dist2()-p2, C = c.dist2()-p2;
+  return p.cross(a,b)*C + p.cross(b,c)*A + p.cross(c,a)*B > 0;
 }
-Q makeEdge(P orig, P dest) {
-	Q r = H ? H : new Quad{new Quad{new Quad{new Quad{0}}}};
-	H = r->o; r->r()->r() = r;
-	rep(i,0,4) r = r->rot, r->p = arb, r->o = i & 1 ? r : r->r();
-	r->p = orig; r->F() = dest;
-	return r;
-}
-void splice(Q a, Q b) {
-	swap(a->o->rot->o, b->o->rot->o); swap(a->o, b->o);
-}
-Q connect(Q a, Q b) {
-	Q q = makeEdge(a->F(), b->p);
-	splice(q, a->next());
-	splice(q->r(), b);
-	return q;
+int makeEdge(P orig, P dest) {
+  int rr;
+  if (H != -1) {
+    rr = H;
+  } else {
+    qs.push_back(Quad());
+    int sz = qs.size()-1;
+    qs.push_back(Quad());
+    qs.back().rot = sz;
+    sz = qs.size()-1;
+    qs.push_back(Quad());
+    qs.back().rot = sz;
+    sz = qs.size()-1;
+    qs.push_back(Quad());
+    qs.back().rot = sz;
+    rr = qs.size()-1;
+  }
+  H = qs[rr].o; r(qs[r(qs[rr])]) = rr;
+  rep(i,0,4) rr = qs[rr].rot, qs[rr].p = arb, qs[rr].o = i & 1 ? rr : r(qs[rr]);
+  qs[rr].p = orig; F(qs[rr]) = dest;
+  return rr;
 }
 
-pair<Q,Q> rec(const vector<P>& s) {
-	if (sz(s) <= 3) {
-		Q a = makeEdge(s[0], s[1]), b = makeEdge(s[1], s.back());
-		if (sz(s) == 2) return { a, a->r() };
-		splice(a->r(), b);
-		auto side = s[0].cross(s[1], s[2]);
-		Q c = side ? connect(b, a) : 0;
-		return {side < 0 ? c->r() : a, side < 0 ? c : b->r() };
-	}
+void splice(int a, int b) {
+  swap(qs[qs[qs[a].o].rot].o, qs[qs[qs[b].o].rot].o); swap(qs[a].o, qs[b].o);
+}
 
-#define H(e) e->F(), e->p
-#define valid(e) (e->F().cross(H(base)) > 0)
-	Q A, B, ra, rb;
-	int half = sz(s) / 2;
-	tie(ra, A) = rec({all(s) - half});
-	tie(B, rb) = rec({sz(s) - half + all(s)});
-	while ((B->p.cross(H(A)) < 0 && (A = A->next())) ||
-	       (A->p.cross(H(B)) > 0 && (B = B->r()->o)));
-	Q base = connect(B->r(), A);
-	if (A->p == ra->p) ra = base->r();
-	if (B->p == rb->p) rb = base;
+int connect(int a, int b) {
+  int q = makeEdge(F(qs[a]), qs[b].p);
+  splice(q, next(qs[a]));
+  splice(r(qs[q]), b);
+  return q;
+}
 
-#define DEL(e, init, dir) Q e = init->dir; if (valid(e)) \
-		while (circ(e->dir->F(), H(base), e->F())) { \
-			Q t = e->dir; \
-			splice(e, e->prev()); \
-			splice(e->r(), e->r()->prev()); \
-			e->o = H; H = e; e = t; \
-		}
-	for (;;) {
-		DEL(LC, base->r(), o);  DEL(RC, base, prev());
-		if (!valid(LC) && !valid(RC)) break;
-		if (!valid(LC) || (valid(RC) && circ(H(RC), H(LC))))
-			base = connect(RC, base->r());
-		else
-			base = connect(base->r(), LC->r());
-	}
-	return { ra, rb };
+pair<int,int> rec(const vector<P>& s) {
+  if (sz(s) <= 3) {
+    int a = makeEdge(s[0], s[1]), b = makeEdge(s[1], s.back());
+    if (sz(s) == 2) return { a, r(qs[a]) };
+    splice(r(qs[a]), b);
+    auto side = s[0].cross(s[1], s[2]);
+    int c = side ? connect(b, a) : 0;
+    return {side < 0 ? r(qs[c]) : a, side < 0 ? c : r(qs[b])};
+  }
+
+#define H(e) F(qs[e]), qs[e].p
+#define valid(e) (F(qs[e]).cross(H(base)) > 0)
+  int A, B, ra, rb;
+  int half = sz(s) / 2;
+  tie(ra, A) = rec({all(s) - half});
+  tie(B, rb) = rec({sz(s) - half + all(s)});
+  while ((qs[B].p.cross(H(A)) < 0 && (A = next(qs[A]))) ||
+         (qs[A].p.cross(H(B)) > 0 && (B = qs[r(qs[B])].o)));
+  int base = connect(r(qs[B]), A);
+  if (qs[A].p == qs[ra].p) ra = r(qs[base]);
+  if (qs[B].p == qs[rb].p) rb = base;
+
+  for (;;) {
+    int LC = qs[r(qs[base])].o;
+    if (valid(LC)) {
+      while (circ(F(qs[qs[LC].o]), H(base), F(qs[LC]))) {
+        int t = qs[LC].o;
+        splice(LC, prev(qs[LC]));
+        splice(r(qs[LC]), prev(qs[r(qs[LC])]));
+        qs[LC].o = H; H = LC; LC = t;              
+      }
+    }
+    int RC = prev(qs[base]);
+    if (valid(RC)) {
+      while (circ(F(qs[prev(qs[RC])]), H(base), F(qs[RC]))) {
+        int t = prev(qs[RC]);
+        splice(RC, prev(qs[RC]));
+        splice(r(qs[RC]), prev(qs[r(qs[RC])]));
+        qs[RC].o = H; H = RC; RC = t;              
+      }
+    }
+    if (!valid(LC) && !valid(RC)) break;
+    if (!valid(LC) || (valid(RC) && circ(H(RC), H(LC))))
+      base = connect(RC, r(qs[base]));
+    else
+      base = connect(r(qs[base]), r(qs[LC]));
+  }
+  return { ra, rb };
 }
 
 vector<P> triangulate(vector<P> pts) {
-	sort(all(pts));  assert(unique(all(pts)) == pts.end());
-	if (sz(pts) < 2) return {};
-	Q e = rec(pts).first;
-	vector<Q> q = {e};
-	int qi = 0;
-	while (e->o->F().cross(e->F(), e->p) < 0) e = e->o;
-#define ADD { Q c = e; do { c->mark = 1; pts.push_back(c->p); \
-	q.push_back(c->r()); c = c->next(); } while (c != e); }
-	ADD; pts.clear();
-	while (qi < sz(q)) if (!(e = q[qi++])->mark) ADD;
-	return pts;
+  sort(all(pts));  assert(unique(all(pts)) == pts.end());
+  if (sz(pts) < 2) return {};
+  int e = rec(pts).first;
+  vector<int> q = {e};
+  int qi = 0;
+  while (F(qs[qs[e].o]).cross(F(qs[e]), qs[e].p) < 0) e = qs[e].o;
+#define ADD { int c = e; do { qs[c].mark = 1; pts.push_back(qs[c].p);   \
+      q.push_back(r(qs[c])); c = next(qs[c]); } while (c != e); }
+  ADD; pts.clear();
+  while (qi < sz(q)) if (!qs[(e = q[qi++])].mark) ADD;
+  return pts;
 }

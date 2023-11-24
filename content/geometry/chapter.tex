@@ -12,16 +12,20 @@ Bisector line length $s_a=\sqrt{bc[1-(\frac{a}{b+c})^2]}$ \\
   G & $1$ & $1$ & $1$ & $\mathcal{C} = a^2 + b^2 - c^2$ \\
   H & $\mathcal{BC}$ & $\mathcal{CA}$ & $\mathcal{AB}$ & \\
   Excircle(A) & $-a$ & $b$ & $c$ & 
-\end{tabular}
+\end{tabular} \\
+With side lengths $a,b,c,d$, diagonals $e, f$, diagonals angle $\theta$, area $A$ and
+magic flux $F=b^2+d^2-a^2-c^2$: $4A = 2ef \cdot \sin\theta = F\tan\theta = \sqrt{4e^2f^2-F^2}$ \\
+For cyclic quadrilaterals the sum of opposite angles is $180^\circ$,
+$ef = ac + bd$, and $A = \sqrt{(p-a)(p-b)(p-c)(p-d)}$. \\
 $HG:GO=1:2$. H of triangle made by middle point on arc of circumscribed circle is equal to inscribed circle center of original triangle. \\
 
-\section{Geometry}
 \kactlimport{PointInteger.h}
 \kactlimport{PointDouble.h}
 %\kactlimport{Point.h}
 %\kactlimport{lineDistance.h}
 \kactlimport{SegmentDistance.h}
 \kactlimport{SegmentIntersection.h}
+\kactlimport{AngleSort.h}
 %\kactlimport{lineIntersection.h}
 %\kactlimport{sideOf.h}
 %\kactlimport{OnSegment.h}
@@ -32,8 +36,9 @@ $HG:GO=1:2$. H of triangle made by middle point on arc of circumscribed circle i
 \kactlimport{HalfPlaneIntersection.h}
 \kactlimport{FastDelaunay.h}
 \kactlimport{BulldozerTrick.h}
+\kactlimport{RotatingCallipers.h}
+\kactlimport{DualGraph.h}
 
-\section{Circles}
 %\kactlimport{CircleIntersection.h}
 %\kactlimport{CircleTangents.h}
 % \kactlimport{CircleLine.h}
@@ -42,24 +47,21 @@ $HG:GO=1:2$. H of triangle made by middle point on arc of circumscribed circle i
 \kactlimport{MinimumEnclosingCircle.h}
 \kactlimport{UnionOfCircle.h}
 
-\section{Polygons}
-%\kactlimport{InsidePolygon.h}
+\kactlimport{InsidePolygon.h}
 %\kactlimport{PolygonArea.h}
 %\kactlimport{PolygonCenter.h}
-%\kactlimport{PolygonCut.h}
+\kactlimport{PolygonCut.h}
+%\kactlimport{PointInPolygon.h}
 \kactlimport{PolygonUnion.h}
 \kactlimport{ConvexHull.h}
 %\kactlimport{HullDiameter.h}
-%\kactlimport{PointInsideHull.h}
+\kactlimport{PointInsideHull.h}
 %\kactlimport{LineHullIntersection.h}
 
-\section{Misc. Point Set Problems}
 %\kactlimport{ClosestPair.h}
-%\kactlimport{kdTree.h}
+\kactlimport{kdTree.h}
 %\kactlimport{DelaunayTriangulation.h}
 
-
-\section{3D}
 %\kactlimport{PolyhedronVolume.h}
 %\kactlimport{Point3D.h}
 %\kactlimport{3dHull.h}

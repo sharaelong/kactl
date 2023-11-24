@@ -1,37 +1,21 @@
 /**
- * Author: Ulf Lundstrom
- * Date: 2009-03-21
- * License: CC0
- * Source:
- * Description:\\
-\begin{minipage}{75mm}
- Returns a vector with the vertices of a polygon with everything to the left of the line going from s to e cut away.
-\end{minipage}
-\begin{minipage}{15mm}
-\vspace{-6mm}
-\includegraphics[width=\textwidth]{content/geometry/PolygonCut}
-\vspace{-6mm}
-\end{minipage}
+ * Author:
+ * Description: Returns the polygon on the left of line l. 
  * Usage:
- * 	vector<P> p = ...;
- * 	p = polygonCut(p, P(0,0), P(1,0));
- * Status: tested but not extensively
+ * Status: not tested.
  */
 #pragma once
 
-#include "Point.h"
-#include "lineIntersection.h"
-
-typedef Point<double> P;
-vector<P> polygonCut(const vector<P>& poly, P s, P e) {
-	vector<P> res;
-	rep(i,0,sz(poly)) {
-		P cur = poly[i], prev = i ? poly[i-1] : poly.back();
-		bool side = s.cross(e, cur) < 0;
-		if (side != (s.cross(e, prev) < 0))
-			res.push_back(lineInter(s, e, cur, prev).second);
-		if (side)
-			res.push_back(cur);
-	}
-	return res;
+// l = p + d*t, l.q() = l + d
+// doubled_signed_area(p,q,r) = (q-p) ^ (r-p)
+vector<Point> polygon_cut(const vector<Point> &a, const line<T> &l){
+  vector<Point> res;
+  for(auto i = 0; i < (int)a.size(); ++ i){
+    auto cur = a[i], prev = i ? a[i - 1] : a.back();
+    bool side = doubled_signed_area(l.p, l.q(), cur) > 0;
+    if(side != (doubled_signed_area(l.p, l.q(), prev) > 0))
+      res.push_back(l.p + ((cur - l.p) ^ (prev - cur)) / ((l.d ^ prev) - cur) * l.d); // line intersection
+    if(side) res.push_back(cur);
+  }
+  return res;
 }

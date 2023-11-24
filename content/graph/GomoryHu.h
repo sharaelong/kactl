@@ -8,36 +8,32 @@
  */
 #pragma once
 
-struct Edge {
-    int s, e, x;
-};
-
+struct Edge { int s, e, x; };
 const int MAX_N = 500 + 1;
-
 bool vis[MAX_N];
 
 struct GomoryHuTree {
-    vector<pii> solve(int n, const vector<Edge>& edges) { // i - j cut : i - j minimum edge cost. 0 based.
-        vector<pii> ret(n); // if i > 0, stores pair(cost, parent)
-        for(int i=1; i<n; i++){
-            Dinic g(n);
-            for (auto[s, e, x]: edges) g.add_edge(s, e, x, x);
-            ret[i].first = g.max_flow(i, ret[i].second);
+  vector<pii> solve(int n, const vector<Edge>& edges) { // i - j cut : i - j minimum edge cost. 0 based.
+    vector<pii> ret(n); // if i > 0, stores pair(cost, parent)
+    for(int i=1; i<n; i++){
+      Dinic g(n);
+      for (auto[s, e, x]: edges) g.add_edge(s, e, x, x);
+      ret[i].first = g.max_flow(i, ret[i].second);
             
-            memset(vis, 0, sizeof(vis));
-            function<void(int)> dfs = [&](int x) {
-                if (vis[x]) return;
-                vis[x] = 1;
-                for (auto& i: g.adj[x]) {
-                    if (i.cap - i.flow > 0) dfs(i.a);
-                }
-            };
+      memset(vis, 0, sizeof(vis));
+      function<void(int)> dfs = [&](int x) {
+        if (vis[x]) return;
+        vis[x] = 1;
+        for (auto& i: g.adj[x]) {
+          if (i.cap - i.flow > 0) dfs(i.a);
+        }
+      };
 
-            dfs(i);
-            for (int j=i+1; j<n; j++) {
-                if (ret[j].second == ret[i].second && vis[j]) ret[j].second = i;
-            }
-        }            
-        return ret;
-    }
+      dfs(i);
+      for (int j=i+1; j<n; j++) {
+        if (ret[j].second == ret[i].second && vis[j]) ret[j].second = i;
+      }
+    }            
+    return ret;
+  }
 };

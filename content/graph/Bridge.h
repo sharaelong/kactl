@@ -15,18 +15,18 @@ int in[MAX_N];
 int cnt = 0;
 
 int dfs(int here, int parent = -1) {
-    in[here] = cnt++;
-    int ret = 1e9;
-    for (int there: adj[here]) {
-        if (there != parent) {
-            if (in[there] == -1) {
-                int subret = dfs(there, here);
-                if (subret > in[here]) bridges.push_back({here, there});
-                ret = min(ret, subret);
-            } else {
-                ret = min(ret, in[there]);
-            }
-        }
+  in[here] = cnt++;
+  int ret = 1e9;
+  for (int there: adj[here]) {
+    if (there != parent) {
+      if (in[there] == -1) {
+        int subret = dfs(there, here);
+        if (subret > in[here]) bridges.push_back({here, there});
+        ret = min(ret, subret);
+      } else {
+        ret = min(ret, in[there]);
+      }
     }
-    return ret;
+  }
+  return ret;
 }

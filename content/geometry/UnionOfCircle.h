@@ -6,13 +6,8 @@
  */
 #pragma once
 
-inline ld sqr(ld x) {
-  return x*x;
-}
-inline int sgn(ld x) {
-  return abs(x)<1e-19L? 0: x > 0? 1 : -1;
-}
-
+inline ld sqr(ld x) {return x*x;}
+inline int sgn(ld x) {return abs(x)<1e-19L? 0: x > 0? 1 : -1;}
 struct vec2{
   ld x,y;
   vec2(){}
@@ -26,7 +21,6 @@ struct vec2{
   friend vec2 operator / (vec2 a, ld b){return vec2(a.x / b, a.y / b); }
   friend bool operator == (vec2 a, vec2 b){return sgn(a.x-b.x) == 0 && sgn(a.y-b.y) == 0; }
   friend bool operator < (vec2 a, vec2 b){return sgn(a.x-b.x) < 0 || (sgn(a.x-b.x) == 0 && sgn(a.y-b.y) < 0); }
-
 
   vec2 rotate(vec2 p, ld ang) {
     vec2 v=(*this)-p;
@@ -152,7 +146,6 @@ ld total_area(vector<ld> cx,vector<ld> cy,vector<ld> cr){
 
 int main(){
   ld angle=0.45692586256L;
-
   int n; ld area; cin>>n>>area;
   vector<ld> cx(n),cy(n),cr(n);
   for (int i=n; i--;){
@@ -164,12 +157,10 @@ int main(){
 
   ld min_rad=cr[0];
   for (auto const &i: cr) min_rad=min(min_rad,i);
-
   ld lef=min_rad;
   ld rgt=min_rad+sqrtl(area/M_PI);
   for (int iter=200; iter--;){
     ld const mid=(lef+rgt)/2.L;
-
     vector<ld> tcr=cr;
     for (int i=0; i<n; i++) tcr[i]=max(mid-cr[i],0.L);
     ld const total=total_area(cx,cy,tcr);
@@ -179,8 +170,5 @@ int main(){
       rgt=mid;
     }
   }
-
-  cout.precision(12);
-  cout<<fixed<<lef<<endl;
+  cout<<lef<<endl;
 }
-
